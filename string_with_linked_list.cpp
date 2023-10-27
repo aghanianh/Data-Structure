@@ -18,13 +18,30 @@ class String
         void echo() const;     //Printing
         void extend_with(int);      //If passing value is greater than size, will  extend with '!', else will delete Nodes;
         int  get_size() const;      // return size of String
-        Node* search_str(const char*);     //Search string and returns address of first Node;
+        Node* search_str(const char*) const;     //Search string and returns address of first Node;
+        bool String:: is_char_in_string(char) const;
     private:
         Node* head;
         Node* tail;
         void clear();  //For deleting Node
         int size;    
 };
+bool String:: is_char_in_string(char c) const
+{
+    Node* tmp = head;
+    bool flag = false;
+    while(tmp != nullptr)
+        {
+            if(tmp -> info == c)
+            {
+                flag = true;
+                break;
+            }
+            tmp = tmp -> next;
+        }
+    return flag;
+    
+}
 Node* String:: search_str(const char* str)
 {
     if(str == nullptr || str[0] == '\0')
