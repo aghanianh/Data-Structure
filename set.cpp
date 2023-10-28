@@ -1,196 +1,279 @@
 #include <iostream>
 using namespace std;
+
 struct Node
 {
-    int data;
+    int info;
     Node* next;
-    Node(int d, Node* p = nullptr):data(d), next(p){}
+    Node(int _info, Node* _next = nullptr): info(_info), next(_next) {}
 };
-class Set
+class Set   
 {
-    public:
+    public:   
         Set();
-        Set(int* , int);
-        Set(const Set&);
         ~Set();
-        void clear();
-        void add_element(int);
-        void echo();
-        Set operator+(const Set&);
+        Set(const Set&);
+        Set(int*, int);
+        Set& operator=(const Set&);   
+        void insert(int); 
+        bool is_contain(int) const;
+        int count_after_item(int) const;
+        Set cross(const Set&);
+        void echo() const;
     private:
         Node* head;
         Node* tail;
-        void sort();
-        void remove_duplicates();
+        void clear();
 };
-void Set::remove_duplicates() {
-    if (!head || !head->next) {
-        return; // No duplicates to remove
+Set Set:: cross(const Set& other)
+{
+    Set result;
+    if(!other.head || !head)
+    {
+        return result;
     }
 
-    Node* current = head;
-    while (current) {
-        Node* nextNode = current;
-        while (nextNode->next) {
-            if (current->data == nextNode->next->data) {
-                Node* duplicate = nextNode->next;
-                nextNode->next = nextNode->next->next;
-                delete duplicate;
-            } else {
-                nextNode = nextNode->next;
-            }
-        }
-        current = current->next;
-    }
-}
-void Set::clear()
-{
-    Node* tmp = head;
-    while(tmp != nullptr)
+    Node* this_tmp = head;
+    Node* other_tmp = other.head;
+    Node* curr = nullptr;
+    while(this_tmp != nullptr && other_tmp != nullptr)
     {
-        tmp = tmp -> next;
-        delete head;
-        head = tmp;
+        if(this_tmp -> info < other_tmp -> info)
+        {
+            this_tmp = this_tmp -> next;
+        }
+        else if(this_tmp -> info > other_tmp -> info)
+        {
+            other_tmp = other_tmp -> next;
+        }
+        else
+        {
+            if(curr == nullptr)
+            {
+                result.head = new Node(this_tmp -> info);
+                curr = result.head;
+            }
+            else
+            {
+                curr -> next = new Node(this_tmp -> info);
+                curr = curr -> next;
+                result.tail = curr;
+            }
+        
+            this_tmp = this_tmp -> next;
+            other_tmp = other_tmp -> next;
+        }
     }
+    return result;
 }
 Set::~Set()
 {
     clear();
 }
-void Set::sort() {
-    if (!head || !head->next) {
-        return; // The list is already sorted
+int Set::count_after_item(int item) const
+{
+    if(!is_contain(item) || head == nullptr)
+    {
+        return -1;
     }
-
-    Node* current = head;
-    while (current) {
-        Node* nextNode = current->next;
-        while (nextNode) {
-            if (current->data > nextNode->data) {
-                int temp = current->data;
-                current->data = nextNode->data;
-                nextNode->data = temp;
-            }
-            nextNode = nextNode->next;
+    int count = 0;
+    Node* tmp = head;
+    while(tmp != nullptr)
+    {
+        if(tmp -> info > item)
+        {
+            count ++;
         }
-        current = current->next;
+        tmp = tmp -> next;
     }
-    remove_duplicates();
-}    
+    return count;
+}
+Set& Set:: operator=(const Set& other)
+{
+    if(this == &other)
+    {
+        return *this;
+    }
+    if(other.head != nullptr)
+    {
+        clear();
+        head = new Node(other.head -> info);
+        Node* this_tmp = head;
+        Node* other_tmp = other.head -> next;
+        while(other_tmp != nullptr)
+        {
+            this_tmp -> next = new Node(other_tmp->info);
+            this_tmp = this_tmp -> next;
+            other_tmp = other_tmp -> next;
+        }
+        tail = this_tmp;
+    }
+    return *this;
+}
+void Set::clear()
+{
+    if(head == nullptr)
+    {
+        return;
+    }
+    while(head != nullptr)
+    {
+        Node* tmp = head;
+        head = head -> next;
+        delete tmp;
+    }
+    tail = nullptr;
+}
 Set::Set()
 {
     head = tail = nullptr;
 }
-Set::Set(int* arr, int n)
-{
-    if(arr != nullptr)
-    {
-        Node* nodeik = new Node(arr[0]);
-        head = tail = nodeik;
-        for(int i = 1; i < n; i++)
-        {
-            Node* tmp = new Node(arr[i]);
-            tail -> next = tmp;
-            tail = tmp;  
-        }
-        sort();
-    }
-}
-Set::Set(const Set& other)
-{
-    if(other.head != nullptr)
-    {
-        Node* nodeik = new Node(other.head -> data);
-        head = tail = nodeik;
-        Node* tmp = head;
-        Node* otmp = other.head->next;
-        while(otmp != nullptr)
-        {
-            Node* new_node = new Node(otmp -> data);
-            tail-> next = new_node;
-            tail = new_node;
-            otmp = otmp -> next;
-        }
-    }
-}
-void Set::add_element(int item)
+bool Set::is_contain(int item) const 
 {
     if(head == nullptr)
     {
-        Node* new_node = new Node(item);
-        head = tail = new_node;
-        return;
+        return false;
     }
-    if(head -> data == item)
-    {
-        return;
-    }
-    if(item < head-> data)
-    {
-        Node* new_node = new Node(item, head);
-        head = new_node;
-        return;
-    }
-    Node* new_node = new Node(item);
-    Node* tmp = head;
-    while(tmp-> next != nullptr)
-    {
-        if(tmp->next->data == item)
-        {
-            return;
-        }
-        if(tmp -> next -> data > item)
-        {
-            break;
-        }
-    tmp = tmp -> next;
-    }
-    tmp -> next = new_node;
-    new_node -> next = tmp -> next -> next;
-    if(new_node->next == nullptr)
-    {
-        tail = new_node;
-    }
-}
-void Set:: echo()
-{
     Node* tmp = head;
     while(tmp != nullptr)
     {
-        std::cout << tmp -> data << " ";
+        if(tmp->info == item)
+        {
+            return true;
+        }
         tmp = tmp -> next;
     }
-    std::cout << std:: endl;
+    return false;
 }
-Set Set::operator+(const Set& other) {
-    Set result(*this); // Create a copy of the current Set
-
-    Node* otherCurrent = other.head;
-    while (otherCurrent) {
-        result.add_element(otherCurrent->data);
-        otherCurrent = otherCurrent->next;
+void Set::insert(int item)
+{
+    if(head == nullptr)
+    {
+        head = tail = new Node(item);
     }
-    result.sort();
-    return result;
+    else if(head != nullptr && head->info > item)
+    {
+        Node* tmp = new Node(item);
+        tmp->next = head;
+        head = tmp;
+    }
+    else
+    {
+        if(!is_contain(item))
+        {
+            Node* tmp = head;
+            while(tmp -> next != nullptr && tmp -> next -> info < item)
+            {
+                tmp = tmp -> next;
+            }
+            Node* new_inserted = new Node(item);
+            new_inserted -> next = tmp -> next;
+            tmp -> next = new_inserted;
+            if(new_inserted -> next == nullptr)
+            {
+                tail = new_inserted;
+            }
+        }
+        else
+        {
+            return;
+        }
+    }
+    
+}
+Set::Set(const Set& other)
+{
+    if(other.head == nullptr)
+    {
+        head = tail = nullptr;
+        return;
+    }
+    head = new Node(other.head -> info);
+    Node* this_tmp = head;
+    tail = this_tmp;
+    if(other.head -> next)
+    {
+        Node* other_tmp = other.head -> next;
+        while(other_tmp)
+        {
+            this_tmp -> next = new Node(other_tmp -> info);
+            this_tmp = this_tmp -> next;
+            other_tmp = other_tmp -> next;
+        }
+        tail = this_tmp;
+    }
+}
+Set::Set(int* arr, int n) {
+    head = tail = nullptr;
+    if (arr == nullptr || n < 0) {
+        return;
+    }
+    int* uniq_arr = new int[n];
+    int counter = 0;
+
+    for (int i = 0; i < n; i++) 
+    {
+        bool is_uniq = true;
+        for (int j = 0; j < counter; j++) 
+        {
+            if (uniq_arr[j] == arr[i]) 
+            {
+                is_uniq = false;
+                break;
+            }
+        }
+        if (is_uniq) 
+        {
+            uniq_arr[counter++] = arr[i];
+        }
+    }
+    head = new Node(uniq_arr[0]);
+    Node* tmp = head;
+    for (int i = 1; i < counter; i++) 
+    {
+        tmp->next = new Node(uniq_arr[i]);
+        tmp = tmp->next;
+    }
+    tail = tmp;
+    tail->next = nullptr;
+    delete[] uniq_arr;
 }
 
+void Set:: echo() const
+{
+    if(head == nullptr)
+        {
+            cout << "empty Set" << endl;
+            return;
+        }
+    Node* tmp = head;
+    while(tmp != nullptr)
+    {
+        cout << tmp -> info << " ";
+        tmp = tmp -> next;
+    }
+    cout << endl;
+}
 
 int main()
 {
     Set s1;
-    s1.add_element(5);
-    s1.add_element(4);
-    s1.add_element(3);
-    s1.add_element(2);
-    s1.add_element(1);
     s1.echo();
-    Set s2(s1);
+    s1.insert(5);
+    s1.insert(1);
+    s1.insert(6);
+    s1.insert(5);
+    s1.insert(4);
+    s1.echo();
+    
+    const int n = 10;
+    int arr[n] = {1,1,2,2,3,3,4,4,5,5};
+    Set s2(arr, n);
     s2.echo();
-    int arr[10] = {1,1,2,2,4,4,5,5,6,6};
-    Set s3(arr, 10);
-    s3.echo();
-    Set s4;
-    s4 = s1 + s3;
-    s4.echo();
 
+    Set s3(s2);
+    s3.echo();
+
+    Set s4 = s1.cross(s2);
+    s4.echo();
 }
