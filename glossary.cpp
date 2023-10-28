@@ -130,7 +130,7 @@ void Glossary::make_ordered()
         first_tmp = first_tmp -> next;
     }
 }
-bool Glossary::isordered() const
+bool Glossary::is_ordered() const
 {
     Node* tmp = head;
     while(tmp != nullptr && tmp -> next != nullptr)
