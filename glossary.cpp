@@ -23,7 +23,7 @@ class Glossary
         ~Glossary();
         void add_string(const char*);
         void echo() const;
-        bool isordered() const;
+        bool is_ordered() const;
         Glossary unit(const Glossary&);
         void make_ordered();
     private:
